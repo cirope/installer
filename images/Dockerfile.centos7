@@ -1,0 +1,59 @@
+FROM centos:centos7
+
+ENV HOME /root
+ENV PATH $HOME/.rbenv/shims:$HOME/.rbenv/bin:$HOME/.rbenv/plugins/ruby-build/bin:$PATH
+ENV RUBY_VERSION 2.7.1
+
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+RUN curl -sL https://rpm.nodesource.com/setup_12.x | bash -
+RUN yum install -y centos-release-scl-rh
+RUN yum -y clean all --enablerepo='*'
+
+RUN yum update -y && \
+  yum install -y     \
+  autoconf           \
+  automake           \
+  bison              \
+  bzip2              \
+  flex               \
+  gcc                \
+  gcc-c++            \
+  gettext            \
+  git-core           \
+  iconv-devel        \
+  ImageMagick        \
+  kernel-devel       \
+  libffi-devel       \
+  libtool            \
+  libyaml-devel      \
+  m4                 \
+  make               \
+  ncurses-devel      \
+  nodejs             \
+  openssl-devel      \
+  patch              \
+  postgresql-devel   \
+  readline           \
+  readline-devel     \
+  tzdata             \
+  zlib               \
+  zlib-devel      && \
+  yum clean all -y
+
+RUN git clone https://github.com/rbenv/rbenv.git $HOME/.rbenv                         && \
+    git clone https://github.com/rbenv/ruby-build.git $HOME/.rbenv/plugins/ruby-build
+
+RUN rbenv install $RUBY_VERSION               && \
+    rbenv global $RUBY_VERSION                && \
+    gem install bundler --no-document --force
+
+RUN mkdir -p $HOME/{build,dist}
+
+COPY config/* $HOME/build/
+COPY assets/* $HOME/build/
+COPY helpers/* $HOME/build/
+
+WORKDIR $HOME
