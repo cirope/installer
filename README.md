@@ -1,0 +1,3 @@
+# RoR installer
+
+Installer builder
