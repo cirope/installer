@@ -14,7 +14,7 @@ done
 dir=$(cd "$(dirname "$0")" && pwd)
 branch=${branch:-master}
 image=${image:-centos7}
-workdir=/root
+workdir=/home/deployer
 
 rm -rf dist/*
 

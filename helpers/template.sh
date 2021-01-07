@@ -9,10 +9,13 @@ echo $logo | base64 -di | cat
 
 echo 'Iniciando instalación, por favor espere...'
 
-echo $build | base64 -di > $file
+cd $HOME
+rm -rf .rbenv
+echo $rbenv | base64 -di | tar xz
+eval "$($HOME/.rbenv/bin/rbenv init -)"
+rbenv global $(rbenv versions --bare)
 
-tar xfz $file
-rm $file
+echo $build | base64 -di | tar xz
 
 mkdir -p $dest/shared/{config,log,private,tmp/pids}
 

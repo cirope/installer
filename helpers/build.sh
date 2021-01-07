@@ -6,6 +6,7 @@ branch=${1-master}
 dir=$(cd "$(dirname "$0")" && pwd)
 dest=mawidabp
 build=mawidabp.tar.gz
+rbenv=rbenv.tar.gz
 dist=../dist
 installer=mawidabp.sh
 repo=https://github.com/cirope/mawidabp
@@ -40,13 +41,15 @@ rm -rf config/jekyll/.jekyll-cache
 cd ..
 
 tar cvfz $build $dest/
+cd $HOME && tar cvfz $dir/$rbenv .rbenv && cd $dir
 
 rm -rf $dest
 
 echo '#!/usr/bin/env bash' > $installer
 echo 'set -eu' >> $installer
 
-echo "build='$(base64 $build)'"                >> $installer
+echo "build='$(base64 $build)'"           >> $installer
+echo "rbenv='$(base64 $rbenv)'"           >> $installer
 echo "config='$(base64 application.yml)'" >> $installer
 echo "logo='$(base64 logo.txt)'"          >> $installer
 
@@ -58,3 +61,4 @@ gzip -9 $installer
 mv $installer.gz $dist
 
 rm $build
+rm $rbenv
