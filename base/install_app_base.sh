@@ -1,8 +1,19 @@
 #!/bin/bash
 set -eu
 
+#URLS
+repo_nginx=http://nginx.org/packages/centos/7/x86_64/RPMS
+repo_redis_ib01=https://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/j
+repo_redis=https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/r
+repo_node=https://rpm.nodesource.com/pub_14.x/el/7/x86_64
+
+dir=$(cd "$(dirname "$0")" && pwd)
+dir_conf=$dir/config_files
+dir_services=$dir/services
+dir_nginx=/etc/nginx
+
 echo "Instalación Paquete NGINX"
-rpm -ivh http://nginx.org/packages/centos/7/x86_64/RPMS/nginx-1.18.0-1.el7.ngx.x86_64.rpm
+rpm -ivh $repo_nginx/nginx-1.18.0-1.el7.ngx.x86_64.rpm
 
 echo creamos directorios sites
 mkdir -p /etc/nginx/sites-available
@@ -12,32 +23,27 @@ echo "Arrancamos y habilitamos nginx"
 systemctl start nginx
 systemctl enable nginx
 
-echo "Directorios"
-dir=$(cd "$(dirname "$0")" && pwd)
-dir_conf=$dir/config_files
-dir_services=$dir/services
 
 echo "Copiamos archivo de configuración Nginx"
-/bin/cat $dir_conf/nginx.conf > /etc/nginx/nginx.conf
-cp $dir_conf/mawidabp.com /etc/nginx/sites-available/
+/bin/cat $dir_conf/nginx.conf > $dir_nginx/nginx.conf
+cp $dir_conf/mawidabp.com $dir_nginx/sites-available/
 
 echo "Creamos enlace simbolico"
-ln -s /etc/nginx/sites-available/mawidabp.com /etc/nginx/sites-enabled/mawidabp.com
+ln -s $dir_nginx/sites-available/mawidabp.com $dir_nginx/sites-enabled/mawidabp.com
 
 echo "Recargamos nginx"
 systemctl restart nginx
 
 echo "Instalamos Redis"
-rpm -ivh https://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/j/jemalloc-3.6.0-1.el7.x86_64.rpm
-rpm -ivh https://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/j/jemalloc-devel-3.6.0-1.el7.x86_64.rpm
-rpm -ivh https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/r/redis-3.2.12-2.el7.x86_64.rpm
-
+rpm -ivh $repo_redis_ib01/jemalloc-3.6.0-1.el7.x86_64.rpm
+rpm -ivh $repo_redis_ib01/jemalloc-devel-3.6.0-1.el7.x86_64.rpm
+rpm -ivh $repo_redis/redis-3.2.12-2.el7.x86_64.rpm
 
 systemctl start redis
 systemctl enable redis
 
 echo "Instalamos nodejs"
-sudo rpm -ivh https://rpm.nodesource.com/pub_14.x/el/7/x86_64/nodejs-14.15.1-1nodesource.x86_64.rpm
+rpm -ivh $repo_node/nodejs-14.15.1-1nodesource.x86_64.rpm
 
 echo "Instalamos ImageMagick"
 yum -y install ImageMagick
