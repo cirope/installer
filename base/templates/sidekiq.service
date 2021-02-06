@@ -5,15 +5,15 @@ After=redis.service syslog.target network.target
 
 [Service]
 Type=simple
-User=deployer
+User=$user
 Group=nginx
 UMask=0002
 EnvironmentFile=/etc/environment
-WorkingDirectory=/var/www/mawidabp.com/current
+WorkingDirectory=$mawidabp_path/current
 
-ExecStart=/home/deployer/.rbenv/shims/bundle exec \
-  "sidekiq -e production \
-  -C config/sidekiq.yml 2>&1 >> log/sidekiq.log"
+ExecStart=/home/$user/.rbenv/shims/bundle exec \
+  \"sidekiq -e production \
+  -C config/sidekiq.yml 2>&1 >> log/sidekiq.log\"
 
 RestartSec=1
 Restart=on-failure
