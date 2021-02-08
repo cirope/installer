@@ -1,9 +1,19 @@
 
 export RAILS_ENV=production
 
+
+while getopts ":u:p:" opt; do
+  case $opt in
+    p)  path="$OPTARG"                                             ;;
+    u)  user="$OPTARG"                                             ;;
+    :)  echo "Option -$OPTARG requires an argument." >&2 && exit 1 ;;
+    \?) echo "Invalid option -$OPTARG"               >&2 && exit 1 ;;
+  esac
+done
+
 file=mawidabp_bundle.tar.gz
-dest=/var/www/mawidabp.com
-user=deployer
+dest=${path-/var/www/mawidabp.com}
+user=${user-deployer}
 
 echo $logo | base64 -di | cat
 

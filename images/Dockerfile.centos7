@@ -1,6 +1,8 @@
 FROM centos:centos7
 
-ENV HOME /home/deployer
+ARG USER deployer
+
+ENV HOME /home/$USER
 ENV PATH $HOME/.rbenv/shims:$HOME/.rbenv/bin:$HOME/.rbenv/plugins/ruby-build/bin:$PATH
 ENV RUBY_VERSION 2.7.2
 
