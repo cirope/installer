@@ -22,8 +22,8 @@ server {
 
 
 server {
-  listen 443 deferred ssl http2;
-  listen [::]:443 deferred ssl http2;
+  #listen 443 deferred ssl http2;
+  #listen [::]:443 deferred ssl http2;
 
   # begin _rackserver
   server_name mawidabp.com *.mawidabp.com;
@@ -41,9 +41,9 @@ server {
 
   # begin _ssl
   # TL;DR: Go to https://wiki.mozilla.org/Security/Server_Side_TLS often =)
-  ssl_certificate         /etc/ssl/certs/mawidabp.com.bundle-crt;
-  ssl_certificate_key     /etc/ssl/private/mawidabp.com.key;
-  ssl_trusted_certificate /etc/ssl/certs/mawidabp.com.bundle-crt;
+  #ssl_certificate         /etc/ssl/certs/mawidabp.com.bundle-crt;
+  #ssl_certificate_key     /etc/ssl/private/mawidabp.com.key;
+  #ssl_trusted_certificate /etc/ssl/certs/mawidabp.com.bundle-crt;
 
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_prefer_server_ciphers on;

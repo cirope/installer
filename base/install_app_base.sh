@@ -31,7 +31,7 @@ dir_services=$dir/services
 dir_nginx=/etc/nginx
 
 #Create config files
-eval "echo \"$(cat $dir_templates/nginx.conf)\" > $dir_conf/nging.conf"
+eval "echo \"$(cat $dir_templates/nginx.conf)\" > $dir_conf/nginx.conf"
 eval "echo \"$(cat $dir_templates/mawidabp.com)\" > $dir_conf/mawidabp.com"
 eval "echo \"$(cat $dir_templates/sudoers)\" > $dir_conf/sudoers"
 eval "echo \"$(cat $dir_templates/sidekiq.service)\" > $dir_services/sidekiq.service"
@@ -44,7 +44,7 @@ repo_redis=https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/r
 repo_node=https://rpm.nodesource.com/pub_14.x/el/7/x86_64
 
 #Install NGINX
-rpm -ivh $repo_nginx/nginx-1.18.0-1.el7.ngx.x86_64.rpm
+rpm -iUvh --replacepkgs $repo_nginx/nginx-1.18.0-1.el7.ngx.x86_64.rpm
 
 #Create sites folders
 mkdir -p /etc/nginx/sites-available
@@ -65,15 +65,15 @@ ln -s $dir_nginx/sites-available/mawidabp.com $dir_nginx/sites-enabled/mawidabp.
 systemctl restart nginx
 
 #Install REDIS
-rpm -ivh $repo_redis_ib01/jemalloc-3.6.0-1.el7.x86_64.rpm
-rpm -ivh $repo_redis_ib01/jemalloc-devel-3.6.0-1.el7.x86_64.rpm
-rpm -ivh $repo_redis/redis-3.2.12-2.el7.x86_64.rpm
+rpm -iUvh --replacepkgs $repo_redis_ib01/jemalloc-3.6.0-1.el7.x86_64.rpm
+rpm -iUvh --replacepkgs $repo_redis_ib01/jemalloc-devel-3.6.0-1.el7.x86_64.rpm
+rpm -iUvh --replacepkgs $repo_redis/redis-3.2.12-2.el7.x86_64.rpm
 
 #Enable REDIS
 systemctl enable redis
 
 #Install NODEJS
-rpm -ivh $repo_node/nodejs-14.15.1-1nodesource.x86_64.rpm
+rpm -iUvh --replacepkgs $repo_node/nodejs-14.15.1-1nodesource.x86_64.rpm
 
 #Install IMAGEMAGICK
 yum -y install ImageMagick
