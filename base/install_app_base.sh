@@ -1,29 +1,34 @@
 #!/bin/bash
 set -eu
 
-user=deployer
-mawidabp_path=/var/www/mawidabp.com
+usage() {
+  echo "Usage: $0 [ -u USERNAME ] [ -p PATH DIRECTORY MAWIDABP ]" 1>&2
+}
+
+exit_abnormal() {
+  usage
+  exit 1
+}
+
+while getopts u:p: option; do
+  case ${option} in
+    u) user=${OPTARG};;
+    p) mawidabp_path=${OPTARG};;
+    :) echo "Error: -${OPTARG} requires an argument."
+      exit_abnormal
+      ;;
+    *)
+      exit_abnormal;;
+    esac
+  done
+
+user=${user-deployer}
+mawidabp_path=${mawidabp_path-/var/www/mawidabp.com}
 dir=$(cd "$(dirname "$0")" && pwd)
 dir_conf=$dir/config_files
 dir_templates=$dir/templates
 dir_services=$dir/services
 dir_nginx=/etc/nginx
-
-while getopts u:p: option
-do
-  case "${option}" in
-    u) user=${OPTARG};;
-    p) mawidabp_path=${OPTARG};;
-    :) echo "INVALID";;
-    \?) echo "Argumento -${option} erroneo use:
-      [u] Nombre de usuario
-      [p] Directorio de instalacion
-      "
-      exit;;
-
-    esac
-  done
-  shift $((OPTIND -1))
 
 #Create config files
 eval "echo \"$(cat $dir_templates/nginx.conf)\" > $dir_conf/nging.conf"
@@ -38,63 +43,66 @@ repo_redis_ib01=https://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packag
 repo_redis=https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/r
 repo_node=https://rpm.nodesource.com/pub_14.x/el/7/x86_64
 
-#echo "Instalación Paquete NGINX"
+#Install NGINX
 rpm -ivh $repo_nginx/nginx-1.18.0-1.el7.ngx.x86_64.rpm
 
-#echo creamos directorios sites
+#Create sites folders
 mkdir -p /etc/nginx/sites-available
 mkdir -p /etc/nginx/sites-enabled
 
-#echo "Arrancamos y habilitamos nginx"
+#Start and enable NGINX
 systemctl start nginx
 systemctl enable nginx
 
-#echo "Copiamos archivo de configuración Nginx"
+#Copy config files to NGINX
 /bin/cat $dir_conf/nginx.conf > $dir_nginx/nginx.conf
 cp $dir_conf/mawidabp.com $dir_nginx/sites-available/
 
-#echo "Creamos enlace simbolico"
+#Create symbolic link
 ln -s $dir_nginx/sites-available/mawidabp.com $dir_nginx/sites-enabled/mawidabp.com
 
-#echo "Recargamos nginx"
+#Restart NGINX
 systemctl restart nginx
 
-#echo "Instalamos Redis"
+#Install REDIS
 rpm -ivh $repo_redis_ib01/jemalloc-3.6.0-1.el7.x86_64.rpm
 rpm -ivh $repo_redis_ib01/jemalloc-devel-3.6.0-1.el7.x86_64.rpm
 rpm -ivh $repo_redis/redis-3.2.12-2.el7.x86_64.rpm
 
-#systemctl start redis
+#Enable REDIS
 systemctl enable redis
 
-#echo "Instalamos nodejs"
+#Install NODEJS
 rpm -ivh $repo_node/nodejs-14.15.1-1nodesource.x86_64.rpm
 
-#echo "Instalamos ImageMagick"
+#Install IMAGEMAGICK
 yum -y install ImageMagick
 
-#echo "Instalamos libyaml"
+#Install LIBYAML
 yum -y install libyaml
 
-#echo "Crear usuario deployer"
-#adduser deployer -G nginx
-#passwd deployer
+#Crearte user
+if ! id -u $user >/dev/null 2>&1;
+then
+  adduser $user -G nginx
+  passwd $user
+fi
 
-#echo "Copiamos archivos de sudoers"
-#cp $dir_conf/sudoers /etc/sudoers.d/deployer
+#Copy sudores files to sudores
+cp $dir_conf/sudoers /etc/sudoers.d/$user
 
-#echo "Creamos directorios"
+#Create folders
 mkdir -p $mawidabp_path
 chown -R $user: /var/www/
 
-#echo "Exportamos RBENV"
+#Export RBENV
 su deployer -c 'echo export PATH="$HOME/.rbenv/bin:$PATH" >> ~/.bashrc'
 ##su deployer -c 'echo eval "$(rbenv init -)"'
 
-#echo "Copiamos servicios"
+#Copy services files to system
 cp $dir_services/*.service /usr/lib/systemd/system/
 
-#echo "Reemplazamos archivo de configuración selinux"
+#Replace selinux file
 /bin/cat $dir_services/selinux_config > /etc/selinux/config
 
 echo "Finalizado por favor reinicie S.O."
