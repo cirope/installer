@@ -56,9 +56,8 @@ echo "logo='$(base64 logo.txt)'"          >> $installer
 cat template.sh >> $installer
 
 chmod +x $installer
-gzip -9 $installer
+tar cvfz $dist/mawidabp.tar.gz $installer
 
-mv $installer.gz $dist
-
+rm $installer
 rm $build
 rm $rbenv
