@@ -2,7 +2,7 @@
 set -eu
 
 usage() {
-  echo "Usage: $0 [ -u USERNAME ] [ -p PATH DIRECTORY MAWIDABP ]" 1>&2
+  echo "Usage: $0 [ -u USERNAME ] [ -p PATH DIRECTORY MAWIDABP ] [-g GROUP]" 1>&2
 }
 
 exit_abnormal() {
@@ -10,10 +10,11 @@ exit_abnormal() {
   exit 1
 }
 
-while getopts u:p: option; do
+while getopts u:p:g: option; do
   case ${option} in
     u) user=${OPTARG};;
     p) mawidabp_path=${OPTARG};;
+    p) group=${OPTARG};;
     :) echo "Error: -${OPTARG} requires an argument."
       exit_abnormal
       ;;
@@ -24,6 +25,7 @@ while getopts u:p: option; do
 
 user=${user-deployer}
 mawidabp_path=${mawidabp_path-/var/www/mawidabp.com}
+group=${group-nginx}
 dir=$(cd "$(dirname "$0")" && pwd)
 dir_conf=$dir/config_files
 dir_templates=$dir/templates
@@ -59,7 +61,10 @@ systemctl enable nginx
 cp $dir_conf/mawidabp.com $dir_nginx/sites-available/
 
 #Create symbolic link
-ln -s $dir_nginx/sites-available/mawidabp.com $dir_nginx/sites-enabled/mawidabp.com
+if [ ! "$(ls -A /etc/nginx/sites-enabled/mawidabp.com)" ]
+then
+  ln -s $dir_nginx/sites-available/mawidabp.com $dir_nginx/sites-enabled/mawidabp.com
+fi
 
 #Restart NGINX
 systemctl restart nginx
@@ -69,8 +74,12 @@ rpm -iUvh --replacepkgs $repo_redis_ib01/jemalloc-3.6.0-1.el7.x86_64.rpm
 rpm -iUvh --replacepkgs $repo_redis_ib01/jemalloc-devel-3.6.0-1.el7.x86_64.rpm
 rpm -iUvh --replacepkgs $repo_redis/redis-3.2.12-2.el7.x86_64.rpm
 
+#Copy config file to REDIS
+/bin/cat $dir_conf/redis.conf > /etc/redis.conf
+
 #Enable REDIS
 systemctl enable redis
+systemctl start redis
 
 #Install NODEJS
 rpm -iUvh --replacepkgs $repo_node/nodejs-14.15.1-1nodesource.x86_64.rpm
@@ -84,7 +93,7 @@ yum -y install libyaml
 #Crearte user
 if ! id -u $user >/dev/null 2>&1;
 then
-  adduser $user -G nginx
+  adduser $user -G $group
   passwd $user
 fi
 
@@ -93,11 +102,10 @@ cp $dir_conf/sudoers /etc/sudoers.d/$user
 
 #Create folders
 mkdir -p $mawidabp_path
-chown -R $user: /var/www/
+chown -R $user: $mawidabp_path
 
 #Export RBENV
-su deployer -c 'echo export PATH="$HOME/.rbenv/bin:$PATH" >> ~/.bashrc'
-##su deployer -c 'echo eval "$(rbenv init -)"'
+su $user -c 'echo export PATH="$HOME/.rbenv/bin:$PATH" >> ~/.bashrc'
 
 #Copy services files to system
 cp $dir_services/*.service /usr/lib/systemd/system/

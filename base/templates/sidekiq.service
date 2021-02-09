@@ -6,7 +6,7 @@ After=redis.service syslog.target network.target
 [Service]
 Type=simple
 User=$user
-Group=nginx
+Group=$group
 UMask=0002
 EnvironmentFile=/etc/environment
 WorkingDirectory=$mawidabp_path/current
