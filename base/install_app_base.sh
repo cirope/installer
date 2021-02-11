@@ -14,7 +14,7 @@ while getopts u:p:g: option; do
   case ${option} in
     u) user=${OPTARG};;
     p) mawidabp_path=${OPTARG};;
-    p) group=${OPTARG};;
+    g) group=${OPTARG};;
     :) echo "Error: -${OPTARG} requires an argument."
       exit_abnormal
       ;;
@@ -40,10 +40,12 @@ eval "echo \"$(cat $dir_templates/sidekiq.service)\" > $dir_services/sidekiq.ser
 eval "echo \"$(cat $dir_templates/unicorn.service)\" > $dir_services/unicorn.service"
 
 #URLS
-repo_nginx=http://nginx.org/packages/centos/7/x86_64/RPMS
-repo_redis_ib01=https://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/j
-repo_redis=https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/r
-repo_node=https://rpm.nodesource.com/pub_14.x/el/7/x86_64
+repo_nginx=http://smi01cl0001.cc.bna.net/repo/mawida
+repo_redis_ib01=http://smi01cl0001.cc.bna.net/repo/mawida
+repo_redis=http://smi01cl0001.cc.bna.net/repo/mawida
+repo_node=http://smi01cl0001.cc.bna.net/repo/mawida
+repo_postgresql=https://yum.postgresql.org/13/redhat/rhel-7.7-x86_64
+repo_epel=https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l
 
 #Install NGINX
 rpm -iUvh --replacepkgs $repo_nginx/nginx-1.18.0-1.el7.ngx.x86_64.rpm
@@ -113,4 +115,8 @@ cp $dir_services/*.service /usr/lib/systemd/system/
 #Replace selinux file
 /bin/cat $dir_services/selinux_config > /etc/selinux/config
 
-echo "Finalizado por favor reinicie S.O."
+#Install Postgresql-libs && libpq
+rpm -iUvh --replacepkgs $repo_postgresql/postgresql13-libs-13.1-1PGDG.rhel7.x86_64.rpm
+rpm -ivh --replacepkgs $repo_epel/libpqxx-4.0.1-1.el7.x86_64.rpm
+
+echo "Finalizado "
