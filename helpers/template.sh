@@ -52,13 +52,21 @@ chown -R $user: $dest
 
 cd $dest/current
 
-bin/rails db:migrate -q
-bin/rails db:seed -q
-bin/rails db:update -q
+if bin/rails runner "ActiveRecord::Base.connection.exec_query 'SELECT 1'" > /dev/null 2>&1; then
+  bin/rails db:migrate -q
+  bin/rails db:seed -q
+  bin/rails db:update -q
 
-sudo systemctl reload-or-restart unicorn
-sudo systemctl restart sidekiq
+  sudo systemctl reload-or-restart unicorn
+  sudo systemctl restart sidekiq
 
-cd ~
+  cd ~
 
-echo 'Instalación finalizada'
+  echo 'Instalación finalizada'
+else
+  echo 'No se pudo conectar a la base de datos, revise la configuración y vuelva a intentarlo'
+
+  cd ~
+
+  exit 1
+fi
