@@ -52,6 +52,7 @@ echo "build='$(base64 $build)'"           >> $installer
 echo "rbenv='$(base64 $rbenv)'"           >> $installer
 echo "config='$(base64 application.yml)'" >> $installer
 echo "logo='$(base64 logo.txt)'"          >> $installer
+echo "branch='$branch'"                   >> $installer
 
 cat template.sh >> $installer
 

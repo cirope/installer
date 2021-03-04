@@ -17,6 +17,14 @@ user=${user-deployer}
 
 echo $logo | base64 -di | cat
 
+if [ -f $HOME/.mawidabp_branch ]; then
+  if ! grep -q -E "^$branch$" $HOME/.mawidabp_branch; then
+    echo 'Instalación incompatible' && exit 1
+  fi
+else
+  echo $branch > $HOME/.mawidabp_branch
+fi
+
 echo 'Iniciando instalación, por favor espere...'
 
 cd $HOME
@@ -24,6 +32,10 @@ rm -rf .rbenv
 echo $rbenv | base64 -di | tar xz
 eval "$($HOME/.rbenv/bin/rbenv init -)"
 rbenv global $(rbenv versions --bare)
+
+if ! grep -q "rbenv init" $HOME/.bashrc; then
+  echo "eval \"\$(rbenv init -)\"" >> $HOME/.bashrc
+fi
 
 echo $build | base64 -di | tar xz
 
