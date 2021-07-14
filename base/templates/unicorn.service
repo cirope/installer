@@ -1,0 +1,31 @@
+[Unit]
+Description=unicorn
+Requires=
+Wants=postgresql-13.service
+After=postgresql-13.service
+
+[Service]
+Type=forking
+PermissionsStartOnly=true
+User=$user
+Group=$group
+WorkingDirectory=$mawidabp_path/current
+Environment=RAILS_ENV=production
+Environment=BUNDLE_GEMFILE=$mawidabp_path/current/Gemfile
+SyslogIdentifier=unicorn
+KillSignal=SIGQUIT
+PIDFile=/tmp/unicorn.pid
+
+ExecStart=/home/$user/.rbenv/shims/bundle exec "\
+          $mawidabp_path/current/bin/unicorn -D -c \
+          $mawidabp_path/current/config/unicorn.rb -E \
+          production"
+
+ExecStop=/bin/kill -s QUIT \$MAINPID
+ExecReload=/bin/kill -s USR2 \$MAINPID
+
+RestartSec=1
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

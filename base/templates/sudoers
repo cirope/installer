@@ -1,0 +1,11 @@
+$user ALL= NOPASSWD: /bin/systemctl start unicorn
+$user ALL= NOPASSWD: /bin/systemctl stop unicorn
+$user ALL= NOPASSWD: /bin/systemctl restart unicorn
+$user ALL= NOPASSWD: /bin/systemctl reload unicorn
+$user ALL= NOPASSWD: /bin/systemctl reload-or-restart unicorn
+
+$user ALL= NOPASSWD: /bin/systemctl start sidekiq
+$user ALL= NOPASSWD: /bin/systemctl stop sidekiq
+$user ALL= NOPASSWD: /bin/systemctl restart sidekiq
+$user ALL= NOPASSWD: /bin/systemctl reload sidekiq
+$user ALL= NOPASSWD: /bin/systemctl reload-or-restart sidekiq
