@@ -26,9 +26,10 @@ rm -rf .git
 
 # On CentOS: bundle config build.pg --with-pg-config=/usr/pgsql-12/bin/pg_config
 
-bundle config set --local deployment 'true' &&
-  bundle install                            &&
-  bundle exec rake help:install             &&
+bundle config set --local deployment 'true'       &&
+  bundle install                                  &&
+  bundle exec rake help:install                   &&
+  bundle exec rake help:create_bootstrap_symlinks &&
   bundle exec rake help:generate
 
 cp config/application.yml.example config/application.yml
