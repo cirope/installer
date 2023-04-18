@@ -4,7 +4,7 @@ ARG USER deployer
 
 ENV HOME /home/$USER
 ENV PATH $HOME/.rbenv/shims:$HOME/.rbenv/bin:$HOME/.rbenv/plugins/ruby-build/bin:$PATH
-ENV RUBY_VERSION 2.7.2
+ENV RUBY_VERSION 2.7.6
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
@@ -37,6 +37,7 @@ RUN yum update -y && \
   nodejs             \
   openssl-devel      \
   patch              \
+  postgresql         \
   postgresql-devel   \
   readline           \
   readline-devel     \
